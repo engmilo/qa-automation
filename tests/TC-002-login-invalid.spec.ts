@@ -1,26 +1,25 @@
 import { test, expect } from '@playwright/test';
-import { login, env } from '../helpers/login';
+import { attemptLogin, env } from '../helpers/login';
 
-// QA Platform: TC-002 - User login with invalid credentials
-// Covers all 3 combinations in one Test Case:
-//  a) valid username + invalid password
-//  b) invalid username + valid password
-//  c) both invalid
+// TC-002 - invalid login must stay on /auth/login with error, NOT redirect
+// Uses attemptLogin, NOT login(), because login() waits to leave /auth/login (valid only)
 
 test('TC-002a - valid username + invalid password', async ({ page }) => {
-  await login(page, env('TEST_USER_EMAIL'), env('TEST_USER_INVALID_PASSWORD', 'WrongPassword123!'));
-  await expect(page).toHaveURL(/login|sign-in|auth/i);
-  await expect(page.getByText(/invalid|incorrect|wrong|failed|try again/i).first()).toBeVisible();
+  const email = env('TEST_USER_EMAIL');
+  await attemptLogin(page, email, 'WrongPassword123!');
+  await expect(page).toHaveURL(/\/auth\/login/);
+  await expect(page.getByText(/invalid login credentials/i)).toBeVisible();
 });
 
 test('TC-002b - invalid username + valid password', async ({ page }) => {
-  await login(page, env('TEST_USER_INVALID_EMAIL', 'invalid@example.com'), env('TEST_USER_PASSWORD'));
-  await expect(page).toHaveURL(/login|sign-in|auth/i);
-  await expect(page.getByText(/invalid|incorrect|wrong|failed|try again/i).first()).toBeVisible();
+  const password = env('TEST_USER_PASSWORD');
+  await attemptLogin(page, 'wrong.user@example.com', password);
+  await expect(page).toHaveURL(/\/auth\/login/);
+  await expect(page.getByText(/invalid login credentials/i)).toBeVisible();
 });
 
 test('TC-002c - both invalid', async ({ page }) => {
-  await login(page, env('TEST_USER_INVALID_EMAIL', 'invalid@example.com'), env('TEST_USER_INVALID_PASSWORD', 'WrongPassword123!'));
-  await expect(page).toHaveURL(/login|sign-in|auth/i);
-  await expect(page.getByText(/invalid|incorrect|wrong|failed|try again/i).first()).toBeVisible();
+  await attemptLogin(page, 'wrong.user@example.com', 'WrongPassword123!');
+  await expect(page).toHaveURL(/\/auth\/login/);
+  await expect(page.getByText(/invalid login credentials/i)).toBeVisible();
 });
