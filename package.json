@@ -1,0 +1,20 @@
+{
+  "name": "automation-smoke",
+  "version": "1.0.0",
+  "private": true,
+  "description": "True automation for QA Studio - Automation - Smoke (TC-001 to TC-004). Separate from QA Platform.",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test tests/TC-001-login-valid.spec.ts tests/TC-002-login-invalid.spec.ts tests/TC-003-add-to-cart.spec.ts tests/TC-004-login-otp-first-attempt.spec.ts",
+    "test:ui": "playwright test --ui",
+    "show-report": "playwright show-report",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^20.0.0",
+    "dotenv": "^18.0.10",
+    "tsx": "^4.23.15",
+    "typescript": "^5.6.0"
+  }
+}
