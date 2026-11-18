@@ -26,7 +26,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run TC-003 Demoblaze only (headless, CI)
-        run: npx playwright test tests/TC-003-add-to-cart.spec.ts --reporter=list
+        run: npx playwright test tests/TC-003-add-to-cart.spec.ts
         env:
           CI: true
 
