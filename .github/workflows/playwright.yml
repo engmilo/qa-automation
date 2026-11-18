@@ -44,7 +44,9 @@ jobs:
         if: success() && github.ref == 'refs/heads/main'
         run: npx tsx scripts/report-all-to-qa-platform.ts
         env:
-          # Reporter uses ONLY this env var (line 41):
-          # const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000'
-          # In CI there is no localhost, so set it to your Vercel URL via secret
+          # Reporter needs these 3 env vars:
+          # PLAYWRIGHT_BASE_URL from line 41, TEST_USER_EMAIL/PASSWORD from lines 42-43
+          # Locally they come from .env, in CI they come from GitHub Secrets
           PLAYWRIGHT_BASE_URL: ${{ secrets.PLAYWRIGHT_BASE_URL }}
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
