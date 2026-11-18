@@ -1,0 +1,50 @@
+name: Playwright - TC-003 Demoblaze
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test-demoblaze:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run TC-003 Demoblaze only (headless, CI)
+        run: npx playwright test tests/TC-003-add-to-cart.spec.ts --reporter=list
+        env:
+          CI: true
+
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-tc003
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+
+      - name: Report to QA Platform (Demoblaze only)
+        if: success() && github.ref == 'refs/heads/main'
+        run: npx tsx scripts/report-all-to-qa-platform.ts
+        env:
+          # Reporter uses ONLY this env var (line 41):
+          # const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000'
+          # In CI there is no localhost, so set it to your Vercel URL via secret
+          PLAYWRIGHT_BASE_URL: ${{ secrets.PLAYWRIGHT_BASE_URL }}
